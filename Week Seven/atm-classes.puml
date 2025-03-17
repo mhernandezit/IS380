@@ -1,5 +1,5 @@
 @startuml
-title ATM System Class Diagram with Facade, Configuration, and Extended Patterns
+title ATM System Class Diagram with Notes, Facade, Configuration, and Extended Patterns
 
 ' ---------------------------
 ' Facade Class
@@ -51,6 +51,17 @@ class ATMMachine {
   + dispenseCash(amount: double): void
 }
 
+' Note: ATM constraints on cash and timers
+note left of ATMMachine
+  • Initial cash capacity is set at startup
+  • Maximum withdrawal = min($200, cashAvailable)
+  • Input timers:
+    - 30 sec for card insertion, PIN entry,
+      menu selection, balance inquiry, and exit
+    - 60 sec for withdrawal amount selection
+end note
+
+' Note: Maintenance mode constraints
 note right of ATMMachine
   When in maintenance mode (isInMaintenanceMode = true),
   only the following operations are allowed:
@@ -255,7 +266,7 @@ ReceiptPrinter ..> Receipt : "prints"
 
 BankServer ..> BalanceReport : "returns"
 
-' Exception dependencies (Unified Exception)
+' Exception dependencies
 BankServer --> ATMException : <<throws>>
 ConnectionManager --> ATMException : <<throws>>
 Account --> ATMException : <<throws>>
