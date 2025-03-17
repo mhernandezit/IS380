@@ -1,0 +1,265 @@
+@startuml
+title ATM System Class Diagram with Facade, Configuration, and Extended Patterns
+
+' ---------------------------
+' Facade Class
+' ---------------------------
+class ATMFacade {
+  - atm: ATMMachine
+  - connectionManager: ConnectionManager
+  - bankServer: BankServer
+  - config: Configuration
+  - logger: TransactionLogger
+  + startSession(card: Card, pin: String): BalanceReport
+  + executeTransaction(transactionType: TransactionType, amount: double): BalanceReport
+  + endSession(): void
+  + performMaintenance(): void
+}
+
+' ---------------------------
+' Configuration Class
+' ---------------------------
+class Configuration {
+  + maxWithdrawalLimit: double
+  + withdrawalMultiple: int
+  + connectionTimeout: int
+  + heartbeatInterval: int
+}
+
+' ---------------------------
+' Core ATM Class
+' ---------------------------
+class ATMMachine {
+  + cashAvailable: double
+  + maxWithdrawalLimit: double
+  + isInMaintenanceMode: boolean
+  + loadCash(amount: double): void
+  + rebootDevice(): void
+  + insertCard(card: Card): void
+  + readCard(): Card
+  + validateCard(card: Card): boolean
+  + promptForPIN(): void
+  + processPIN(pin: String): void
+  + showMenu(): void
+  + requestWithdrawal(amount: double): boolean
+  + requestDeposit(envelope: Envelope): boolean
+  + requestBalance(): BalanceReport
+  + ejectCard(): void
+  + enterMaintenanceMode(): void
+  + exitMaintenanceMode(): void
+  + printReceipt(receipt: Receipt): void
+  + dispenseCash(amount: double): void
+}
+
+note right of ATMMachine
+  When in maintenance mode (isInMaintenanceMode = true),
+  only the following operations are allowed:
+    - loadCash(amount)
+    - rebootDevice()
+    - exitMaintenanceMode()
+end note
+
+' ---------------------------
+' Bank and Account Classes
+' ---------------------------
+class BankServer {
+  + bankName: String
+  + validateCard(card: Card): boolean <<throws ATMException>>
+  + validatePIN(card: Card, pin: String): boolean <<throws ATMException>>
+  + returnBalance(card: Card): BalanceReport
+  + processWithdrawal(card: Card, amount: double): boolean <<throws ATMException>>
+  + processDeposit(card: Card, envelope: Envelope, amount: double): boolean <<throws ATMException>>
+  + getAccount(card: Card): Account
+  + logTransaction(details: String): void
+}
+
+class Account {
+  + accountNumber: String
+  + balance: double
+  + pinAttemptCounter: int
+  + isDisabled: boolean
+  + debit(amount: double): boolean <<throws ATMException>>
+  + credit(amount: double): void
+  + getBalance(): double
+}
+
+class Card {
+  + cardNumber: String
+  + expiryDate: Date
+  + cardHolderName: String
+  + isActive: boolean
+}
+
+' ---------------------------
+' New Bank Customer Class
+' ---------------------------
+class BankCustomer {
+  + customerID: String
+  + name: String
+  + address: String
+  + phone: String
+}
+
+' ---------------------------
+' Connectivity Classes
+' ---------------------------
+class ConnectionManager {
+  + secureTunnel: SecureTunnel
+  + communicationChannel: CommunicationChannel
+  + heartbeatManager: HeartbeatManager
+  + establishConnection(): boolean <<throws ATMException>>
+  + tearDownConnection(): void
+}
+
+class SecureTunnel {
+  + encryptionAlgorithm: String
+  + openTunnel(): boolean <<throws ATMException>>
+  + closeTunnel(): void
+}
+
+class CommunicationChannel {
+  + sendMessage(message: String): void
+  + receiveMessage(): String
+}
+
+class HeartbeatManager {
+  + startHeartbeat(): void
+  + stopHeartbeat(): void
+  + sendHeartbeat(): void
+  + addHeartbeatListener(listener: HeartbeatListener): void
+  + removeHeartbeatListener(listener: HeartbeatListener): void
+}
+
+' ---------------------------
+' Hardware Components
+' ---------------------------
+class MagneticStripeReader {
+  + readCard(): Card
+}
+
+class ReceiptPrinter {
+  + printReceipt(receipt: Receipt): void <<throws ATMException>>
+}
+
+class CashDispenser {
+  + dispenseCash(amount: double): void
+}
+
+class DepositSlot {
+  + acceptEnvelope(envelope: Envelope): boolean
+}
+
+' ---------------------------
+' Supporting Classes
+' ---------------------------
+class Envelope {
+  + envelopeID: String
+  + amount: double
+}
+
+class Receipt {
+  + receiptID: String
+  + details: String
+  + generate(): void
+}
+
+class BalanceReport {
+  + availableBalance: double
+  + totalBalance: double
+}
+
+' ---------------------------
+' Audit/Logging
+' ---------------------------
+class TransactionLogger {
+  + log(transactionDetails: String): void
+}
+
+' ---------------------------
+' Exception Class (Unified)
+' ---------------------------
+exception ATMException {
+  + errorCode: int
+  + errorMessage: String
+}
+
+' ---------------------------
+' Strategy Pattern for Transactions
+' ---------------------------
+interface TransactionStrategy {
+  + execute(card: Card): boolean
+}
+enum TransactionType {
+  WITHDRAWAL
+  DEPOSIT
+  BALANCE_INQUIRY
+  EXIT
+}
+
+' ---------------------------
+' Observer Pattern for Heartbeat
+' ---------------------------
+interface HeartbeatListener {
+  + onHeartbeatFailure(): void
+}
+ConnectionManager ..|> HeartbeatListener
+
+' ---------------------------
+' Chain of Responsibility for Exception Handling
+' ---------------------------
+abstract class ExceptionHandler {
+  - nextHandler: ExceptionHandler
+  + setNext(handler: ExceptionHandler): void
+  + handleException(e: ATMException): void
+}
+class CardExceptionHandler extends ExceptionHandler {
+  + handleException(e: ATMException): void
+}
+class ConnectivityExceptionHandler extends ExceptionHandler {
+  + handleException(e: ATMException): void
+}
+
+' ---------------------------
+' Relationships
+' ---------------------------
+ATMFacade --> ATMMachine : uses
+ATMFacade --> ConnectionManager : uses
+ATMFacade --> BankServer : uses
+ATMFacade --> Configuration : uses
+ATMFacade --> TransactionLogger : logs to
+
+ATMMachine --> Configuration : uses
+ATMMachine --> ConnectionManager : manages
+ATMMachine --> MagneticStripeReader : uses
+ATMMachine --> ReceiptPrinter : uses
+ATMMachine --> CashDispenser : uses
+ATMMachine --> DepositSlot : uses
+ATMMachine --> BankServer : communicates with
+ATMMachine --> TransactionStrategy : uses
+
+BankServer --> Account : manages
+BankServer --> Card : validates
+BankServer --> TransactionLogger : logs to
+ATMMachine ..> Card : "reads via MSR"
+Card "1" o-- "1" Account : associated with
+BankCustomer "1" o-- "1" Account : owns
+BankCustomer "1" o-- "1" Card : owns
+
+ConnectionManager o-- SecureTunnel : owns
+ConnectionManager o-- CommunicationChannel : owns
+ConnectionManager o-- HeartbeatManager : owns
+
+DepositSlot ..> Envelope : "accepts"
+BankServer ..> Envelope : "processes deposit"
+ReceiptPrinter ..> Receipt : "prints"
+
+BankServer ..> BalanceReport : "returns"
+
+' Exception dependencies (Unified Exception)
+BankServer --> ATMException : <<throws>>
+ConnectionManager --> ATMException : <<throws>>
+Account --> ATMException : <<throws>>
+ReceiptPrinter --> ATMException : <<throws>>
+BankServer --> ATMException : <<throws>>
+
+@enduml
