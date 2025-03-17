@@ -1,0 +1,87 @@
+@startuml
+
+title ATM Sequence UML
+
+actor User
+participant "ATM Machine" as ATM
+participant "Bank Server" as Bank
+
+' Constraint: Initial ATM Cash Capacity
+note over ATM
+  ATM Initial Cash:
+  Must be loaded with cash at startup.
+  If no cash is available, trigger "ATM Out of Money" early.
+end note
+
+' Constraint: Withdrawal Limit
+note over ATM, Bank #lightyellow
+  Withdrawal Limit:
+  Maximum withdrawal is $200 or the available cash,
+  whichever is lower.
+end note
+
+' Constraint: User Input Timers
+note over User, ATM
+  User Input Timer:
+  - 30 sec timer for card insertion, PIN entry,
+    transaction selection, balance inquiry, and exit.
+  - 60 sec timer for selecting withdrawal amount.
+end note
+
+User -> ATM: Insert Card
+ATM -> ATM: Validate Card
+
+alt#Gold #lightgreen Valid Card
+  ATM -> User: Prompt for PIN
+else #pink Invalid Card 
+  ATM -> User: Eject Card with invalid card error
+end
+
+ATM -> User: Prompt for PIN
+User -> ATM: Enter PIN
+ATM -> Bank: Send Card Data + PIN
+Bank -> Bank: Validate PIN
+
+alt#Gold #lightgreen Valid PIN 
+  Bank -> ATM: Return success
+  Bank -> ATM: Return balance
+  ATM -> User: Show Menu
+else #pink Invalid PIN 
+  Bank -> ATM: Return error
+  ATM -> User: Eject Card with Invalid PIN error
+end
+
+User -> ATM: Select Transaction
+ATM -> User: Show Transaction Options
+User -> ATM: Request Withdrawal
+ATM -> Bank: Request Withdrawal
+Bank -> Bank: Check Funds
+
+alt#Gold #lightgreen Sufficient Funds 
+  Bank -> User: Update Balance
+  Bank -> ATM: Return success
+  Bank -> ATM: Dispense Cash
+  ATM -> User: Dispense Cash
+  ATM -> User: Show Success Message
+  ATM -> User: Eject Card
+  User -> ATM: Take Cash
+else #pink Insufficient Funds 
+  Bank -> ATM: Return error
+  ATM -> User: Show Insufficient Funds Error
+end
+
+User -> ATM: Request Balance
+ATM -> User: Show Balance
+ATM -> Bank: Request Balance
+Bank -> ATM: Return Balance
+ATM -> User: Show Balance
+
+alt#Gold #lightgreen User wants to exit
+  ATM -> User: Show Exit Message
+else #pink User wants to continue
+  ATM -> User: Show Menu
+end
+
+ATM -> User: Eject Card
+
+@enduml

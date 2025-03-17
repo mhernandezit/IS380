@@ -1,0 +1,89 @@
+@startuml
+title ATM Sequence UML with Detailed Transactions
+
+actor User
+
+participant ATMFacade as "ATM Facade"
+participant ATMMachine as "ATM Machine"
+participant BankAPI as "Bank API"
+
+' --- Maintenance Mode (if operator key is inserted) ---
+alt Maintenance Mode Activated
+    User -> ATMFacade: Request Maintenance Mode
+    ATMFacade -> ATMMachine: Enter Maintenance Mode
+    ATMFacade -> BankAPI: Log Maintenance Mode
+    User -> ATMFacade: Exit Maintenance Mode
+    ATMFacade -> ATMMachine: Exit Maintenance Mode
+end
+
+' --- Normal Operation ---
+User -> ATMFacade: Insert Card
+ATMFacade -> ATMMachine: Read Card (via MSR)
+ATMFacade -> BankAPI: Validate Card (association, active, PIN counter)
+alt Card Valid
+    ATMFacade -> User: Prompt for PIN
+    User -> ATMFacade: Enter PIN
+    ATMFacade -> BankAPI: Validate PIN
+    alt PIN Valid
+         ATMFacade -> User: Show Menu [Withdrawal, Deposit, Balance Inquiry, Exit]
+         User -> ATMFacade: Select Transaction (e.g., Withdrawal)
+         alt Withdrawal Selected
+              ATMFacade -> User: Prompt for Withdrawal Amount
+              User -> ATMFacade: Enter Withdrawal Amount
+              ATMFacade -> ATMMachine: Validate Amount (must be multiple of $20)
+              alt Amount Valid
+                   ATMFacade -> BankAPI: Process Withdrawal(card, amount)
+                   alt Sufficient Funds
+                        BankAPI -> ATMFacade: Return Success & Balance
+                        ATMFacade -> ATMMachine: Dispense Cash (amount)
+                        ATMFacade -> ATMMachine: Print Receipt
+                        ATMMachine -> User: Dispense Cash
+                        ATMFacade -> User: Show Success Message ("Cash Dispensed")
+                   else Insufficient Funds
+                        BankAPI -> ATMFacade: Return Error
+                        ATMFacade -> User: Show "Insufficient Funds" Error
+                   end
+              else Amount Invalid
+                   ATMFacade -> User: Show Error ("Amount must be in multiples of $20")
+              end
+         else Withdrawal Not Selected
+              alt Deposit Selected
+                   ATMFacade -> User: Prompt for Deposit Amount
+                   User -> ATMFacade: Enter Deposit Amount
+                   ATMFacade -> User: Prompt for Envelope Insertion
+                   User -> ATMFacade: Insert Envelope
+                   ATMFacade -> BankAPI: Process Deposit(card, envelope, amount)
+                   alt Deposit Processed
+                        BankAPI -> ATMFacade: Return Updated Balance
+                        ATMFacade -> ATMMachine: Print Receipt
+                        ATMFacade -> User: Show "Deposit Successful" Message
+                   else Deposit Timeout/Error
+                        BankAPI -> ATMFacade: Return Error
+                        ATMFacade -> User: Show "Deposit Error" Message
+                   end
+              else alt Balance Inquiry Selected
+                   ATMFacade -> BankAPI: Request Balance
+                   BankAPI -> ATMFacade: Return Balance Report
+                   ATMFacade -> User: Display Balance Report
+                   ATMFacade -> ATMMachine: Print Receipt
+              else alt Exit Selected
+                   ATMFacade -> User: Show Exit Message
+              end
+         end
+    else PIN Invalid
+         ATMFacade -> User: Show "Invalid PIN" Error
+         ATMFacade -> BankAPI: Increment PIN Failure Counter
+         alt PIN Failures < 3
+              ATMFacade -> User: Prompt Retry or Eject Card
+         else PIN Failures == 3
+              ATMFacade -> User: Show "Account Disabled" Message
+         end
+    end
+else Card Invalid
+    ATMFacade -> User: Eject Card with Card Error Message
+end
+
+ATMFacade -> ATMMachine: Eject Card
+ATMFacade -> BankAPI: End Session
+
+@enduml

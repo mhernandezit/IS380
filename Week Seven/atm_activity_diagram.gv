@@ -1,0 +1,55 @@
+digraph ATM_Activity_Diagram {
+	rankdir=TB splines=ortho
+	subgraph cluster_actor {
+		color=lightgrey label=Actor style=filled
+		a1 [label="Insert Card"]
+		a2 [label="Enter PIN"]
+		a3 [label="Select Option:
+Check Balance / Withdraw / Exit"]
+		a4 [label="Enter Withdrawal Amount"]
+	}
+	subgraph cluster_atm {
+		color=lightblue label=ATM style=filled
+		atm1 [label="Validate Card"]
+		atm2 [label="ATM Cash Available?"]
+		atm3 [label="ATM Out of Money"]
+		atm4 [label="Establish Secure Connection
+& Transmit Card/PIN"]
+		atm5 [label="Store Bank Balance"]
+		atm6 [label="Show Balance?"]
+		atm7 [label="Display Balance"]
+		atm8 [label="Process Withdrawal"]
+		atm9 [label="Verify Sufficient ATM Cash"]
+		atm10 [label="Deduct Amount"]
+		atm11 [label="Dispense Cash"]
+		atm12 [label="Eject Card"]
+	}
+	subgraph cluster_bank {
+		color=lightgreen label=Bank style=filled
+		b1 [label="PIN Verification &
+Return Balance"]
+		b2 [label="Process Bank Withdrawal"]
+	}
+	a1 -> a2
+	a2 -> a3
+	a3 -> atm12 [label=Exit]
+	a3 -> atm4 [label="Check Balance/Withdraw"]
+	a1 -> atm1
+	atm1 -> atm2
+	atm2 -> atm4 [label=Yes]
+	atm2 -> atm3 [label=No]
+	atm4 -> b1
+	b1 -> atm5
+	atm5 -> atm6
+	atm6 -> atm7 [label="Show Balance"]
+	atm7 -> atm12
+	atm6 -> atm8 [label=Withdraw]
+	a4 -> atm8 [label="Withdrawal Amount"]
+	atm8 -> b2
+	b2 -> atm10
+	atm8 -> atm9 [label="Verify ATM Cash"]
+	atm9 -> atm10 [label="Sufficient?"]
+	atm9 -> atm12 [label="Insufficient Cash"]
+	atm10 -> atm11
+	atm11 -> atm12
+}

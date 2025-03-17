@@ -1,0 +1,129 @@
+@startuml
+title ATM Sequence UML with Extended Security and Maintenance Mode
+
+actor Operator
+actor User
+participant "ATM Machine" as ATM
+participant "Magnetic Stripe Reader" as MSR
+participant "Receipt Printer" as Printer
+participant "Connection Manager" as ConnMgr
+participant "Bank Server" as Bank
+
+' ----------------------------
+' Maintenance Mode
+' ----------------------------
+alt Maintenance Mode Activated
+    Operator -> ATM: Activate Maintenance Mode
+    ATM -> Operator: Display Maintenance Screen
+    Operator -> ATM: Deactivate Maintenance Mode
+else Normal Operation
+    ' Continue with normal operation
+end
+
+' ----------------------------
+' Card Insertion & Remote Validation
+' ----------------------------
+User -> ATM: Insert Card
+ATM -> MSR: Read Card
+MSR --> ATM: Card Data
+ATM -> Bank: Validate Card (Check association, active status, PIN counter)
+alt #lightgreen Valid Card, Active, PIN counter < 3
+    ATM -> User: Prompt for PIN
+else #pink Invalid Card / Inactive / Account Disabled
+    Bank --> ATM: Return Error (Invalid/Inactive/Disabled)
+    ATM -> User: Eject Card with error message
+    ' Transaction terminates here
+end
+
+' ----------------------------
+' PIN Entry & Connection Setup
+' ----------------------------
+User -> ATM: Enter PIN
+
+ATM -> ConnMgr: establishConnection()
+alt #lightgreen Connection Established
+  ConnMgr -> ConnMgr: buildSecureTunnel()
+  alt #lightgreen Secure Tunnel Opened
+    ConnMgr -> ConnMgr: openCommunicationChannel()
+    alt #lightgreen Communication Channel Opened
+         ConnMgr --> ATM: Connection Established
+    else #pink Communication Channel Failure
+      ConnMgr --> ATM: Communication Channel Failure Exception
+      ATM -> User: Eject Card with Connection Error
+      ' Transaction terminates here
+    end
+  else #pink Secure Tunnel Failure
+    ConnMgr --> ATM: Secure Tunnel Failure Exception
+    ATM -> User: Eject Card with Connection Error
+    ' Transaction terminates here
+  end
+else #pink Connection Failure
+  ConnMgr --> ATM: Connection Failure Exception
+  ATM -> User: Eject Card with Connection Error
+  ' Transaction terminates here
+end
+
+' ----------------------------
+' PIN Verification & Attempt Counter
+' ----------------------------
+ATM -> Bank: Send Card Data + PIN (over secure channel)
+Bank -> Bank: Validate PIN (Increment counter if invalid)
+alt #lightgreen Valid PIN
+    Bank -> ATM: Return success & balance, reset PIN counter
+    ATM -> User: Show Menu (Withdrawal, Deposit, Balance Inquiry, Exit)
+else #pink Invalid PIN
+    Bank -> ATM: Return error (Incremented PIN counter)
+    alt PIN counter < 3
+       ATM -> User: Eject Card with Invalid PIN error
+    else PIN counter == 3
+       ATM -> User: Eject Card with Account Disabled error
+    end
+end
+
+' ----------------------------
+' Main Transaction Flow
+' ----------------------------
+User -> ATM: Select Transaction
+ATM -> User: Show Transaction Options
+
+alt #lightgreen User selects Withdrawal
+    ATM -> User: Prompt for Withdrawal Amount (multiples of $20)
+    User -> ATM: Enter Withdrawal Amount
+    ATM -> ATM: Validate Amount (Multiple of $20)
+    alt #lightgreen Valid Amount
+       ATM -> Bank: Request Withdrawal
+       Bank -> Bank: Check Funds
+       alt #lightgreen Sufficient Funds
+           Bank -> ATM: Return success & dispense cash
+           ATM -> User: Dispense Cash
+           ATM -> Printer: Print Receipt
+           ATM -> User: Show Success Message
+           ATM -> User: Eject Card
+           User -> ATM: Take Cash
+       else #pink Insufficient Funds
+           Bank -> ATM: Return error
+           ATM -> User: Show Insufficient Funds Error
+       end
+    else #pink Invalid Amount
+       ATM -> User: Show Error ("Amount must be in multiples of $20")
+       ' Transaction terminates here
+    end
+else alt #lightgreen User selects Deposit
+    ATM -> User: Prompt for Envelope Deposit
+    User -> ATM: Insert Envelope
+    ATM -> Bank: Process Deposit
+    ATM -> Printer: Print Receipt
+    ATM -> User: Show Deposit Success
+else alt #lightgreen User selects Balance Inquiry
+    ATM -> Bank: Request Balance
+    Bank -> ATM: Return Balance
+    ATM -> User: Show Balance
+    ATM -> Printer: Print Receipt
+else #lightgreen User selects Exit
+    ATM -> User: Show Exit Message
+end
+
+ATM -> ConnMgr: tearDownConnection()
+ATM -> User: Eject Card
+
+@enduml

@@ -1,0 +1,127 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.0">
+  <diagram name="ATM Activity Diagram with Swimlanes" id="swimlaneDiagram">
+    <mxGraphModel dx="2282" dy="697" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="laneActor" value="Actor" style="swimlane;html=1;childLayout=stackLayout;horizontal=0;" parent="1" vertex="1">
+          <mxGeometry width="200" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="Insert Card" style="rounded=1;fillColor=#FFFFFF" parent="laneActor" vertex="1">
+          <mxGeometry x="20" y="20" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Enter PIN" style="rounded=1;fillColor=#FFFFFF" parent="laneActor" vertex="1">
+          <mxGeometry x="20" y="80" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="Select Option: Check Balance / Withdraw / Exit" style="rounded=1;fillColor=#FFFFFF" parent="laneActor" vertex="1">
+          <mxGeometry x="20" y="140" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="Enter Withdrawal Amount" style="rounded=1;fillColor=#FFFFFF" parent="laneActor" vertex="1">
+          <mxGeometry x="20" y="200" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeA1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneActor" source="a1" target="a2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeA2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneActor" source="a2" target="a3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeA3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneActor" source="a3" target="a4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="laneATM" value="ATM" style="swimlane;html=1;childLayout=stackLayout;horizontal=0;" parent="1" vertex="1">
+          <mxGeometry x="200" width="400" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="atm1" value="Validate Card" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="20" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm2" value="ATM Cash Available?" style="rhombus;fillColor=#FFD966" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="80" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="atm3" value="ATM Out of Money" style="rounded=1;fillColor=#FFCCCC" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="160" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm4" value="Establish Secure Connection &amp; Transmit Card/PIN" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="240" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm5" value="Store Bank Balance" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="300" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm6" value="Show Balance?" style="rhombus;fillColor=#FFD966" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="360" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="atm7" value="Display Balance" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="440" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm8" value="Process Withdrawal" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="440" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm9" value="Verify Sufficient ATM Cash" style="rhombus;fillColor=#FFD966" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="500" width="100" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="atm10" value="Deduct Amount" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="580" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm11" value="Dispense Cash" style="rounded=1;fillColor=#FFFFFF" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="640" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="atm12" value="Eject Card" style="rounded=1;fillColor=#FFCCCC" parent="laneATM" vertex="1">
+          <mxGeometry x="20" y="700" width="160" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm1" target="atm2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm2" target="atm3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm2" target="atm4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm4" target="atm5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm5" target="atm6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm6" target="atm7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm6" target="atm8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm8" target="atm9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm9" target="atm10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm10" target="atm11" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATM11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="atm11" target="atm12" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeBank1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="b1" target="atm5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeBank2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneATM" source="b2" target="atm10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="laneBank" value="Bank" style="swimlane;html=1;childLayout=stackLayout;horizontal=0;" parent="1" vertex="1">
+          <mxGeometry x="600" width="400" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="PIN Verification &amp; Return Balance" style="rounded=1;fillColor=#FFFFFF" parent="laneBank" vertex="1">
+          <mxGeometry x="20" y="240" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="Process Bank Withdrawal" style="rounded=1;fillColor=#FFFFFF" parent="laneBank" vertex="1">
+          <mxGeometry x="20" y="500" width="220" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATMtoBank" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneBank" source="atm4" target="b1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edgeATMtoBankWithdraw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" parent="laneBank" source="atm8" target="b2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

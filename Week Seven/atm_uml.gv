@@ -1,0 +1,57 @@
+digraph ATM_UML {
+	rankdir=TB splines=ortho
+	start [label="" fillcolor=black shape=circle style=filled]
+	insert_card [label="Insert Card" shape=box]
+	enter_pin [label="Enter PIN" shape=box]
+	select_option [label="Select Option:
+Check Balance / Withdraw / Exit" shape=box]
+	validate_card [label="Validate Card" shape=box]
+	cash_check [label="ATM Cash Available?" shape=diamond]
+	atm_out [label="ATM Out of Money" fillcolor=red shape=box style=filled]
+	secure_conn [label="Establish Secure Connection
+& Transmit Card/PIN" shape=box]
+	pin_verify [label="PIN Verification &
+Return Balance" shape=box]
+	invalid_pin [label="Error: Invalid PIN
+Eject Card" fillcolor=red shape=box style=filled]
+	store_balance [label="Store Bank Balance" shape=box]
+	option_decision [label="Option Decision" shape=diamond]
+	display_balance [label="Display Balance" shape=box]
+	withdraw_amount [label="Enter Withdrawal Amount" shape=box]
+	process_withdraw [label="Process Bank Withdrawal" shape=box]
+	balance_check [label="Is Requested Amount ≤ Available Balance?" shape=diamond]
+	withdraw_error [label="Error: Insufficient Balance
+Eject Card" fillcolor=red shape=box style=filled]
+	verify_atm_cash [label="Verify Sufficient ATM Cash" shape=diamond]
+	deduct_amount [label="Deduct Amount" shape=box]
+	dispense_cash [label="Dispense Cash" shape=box]
+	eject_card [label="Eject Card" shape=box]
+	end [label="" fillcolor=black shape=circle style=filled]
+	start -> insert_card
+	insert_card -> enter_pin
+	enter_pin -> select_option
+	select_option -> eject_card [label=Exit constraint=false]
+	select_option -> validate_card [label="Check Balance/Withdraw"]
+	validate_card -> cash_check
+	cash_check -> secure_conn [label=Yes]
+	cash_check -> atm_out [label=No]
+	atm_out -> eject_card
+	secure_conn -> pin_verify
+	pin_verify -> store_balance [label=Valid]
+	pin_verify -> invalid_pin [label=Invalid]
+	invalid_pin -> eject_card
+	store_balance -> option_decision
+	option_decision -> display_balance [label="Show Balance"]
+	display_balance -> eject_card
+	option_decision -> withdraw_amount [label=Withdraw]
+	withdraw_amount -> process_withdraw
+	process_withdraw -> balance_check
+	balance_check -> verify_atm_cash [label=Yes]
+	balance_check -> withdraw_error [label=No]
+	withdraw_error -> eject_card
+	verify_atm_cash -> deduct_amount [label=Sufficient]
+	verify_atm_cash -> atm_out [label=Insufficient]
+	deduct_amount -> dispense_cash
+	dispense_cash -> eject_card
+	eject_card -> end
+}

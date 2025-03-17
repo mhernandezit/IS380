@@ -1,0 +1,152 @@
+@startuml
+
+title ATM System Class Diagram with Connectivity, Bank Server, and Exceptions
+
+' ---------------------------
+' Core Classes
+' ---------------------------
+class ATMMachine {
+  - cashAvailable: double
+  - maxWithdrawalLimit: double
+  - connectionManager: ConnectionManager
+  + insertCard(card: Card): void <<throws InvalidCardException>>
+  + validateCard(): boolean <<throws InvalidCardException>>
+  + promptForPIN(): void
+  + enterPIN(pin: String): void
+  + showMenu(): void
+  + requestWithdrawal(amount: double): boolean <<throws InsufficientFundsException>>
+  + requestBalance(): double
+  + ejectCard(): void
+}
+
+class BankServer {
+  + validatePIN(card: Card, pin: String): boolean <<throws InvalidPINException>>
+  + returnBalance(card: Card): double
+  + processWithdrawal(card: Card, amount: double): boolean <<throws InsufficientFundsException>>
+  + getAccount(card: Card): Account
+}
+
+class Card {
+  - cardNumber: String
+  - expiryDate: Date
+  - cardHolderName: String
+}
+
+class ATMTransaction {
+  - transactionType: TransactionType
+  - amount: double
+  + process(): void
+}
+
+enum TransactionType {
+  WITHDRAWAL
+  BALANCE_INQUIRY
+  EXIT
+}
+
+' ---------------------------
+' Connectivity Classes
+' ---------------------------
+class ConnectionManager {
+  - secureTunnel: SecureTunnel
+  - communicationChannel: CommunicationChannel
+  - heartbeatManager: HeartbeatManager
+  + establishConnection(): boolean <<throws ConnectionException>>
+  + buildSecureTunnel(): boolean <<throws ConnectionException>>
+  + openCommunicationChannel(): boolean <<throws ConnectionException>>
+  + sendHeartbeat(): void
+  + tearDownConnection(): void
+}
+
+class SecureTunnel {
+  - encryptionAlgorithm: String
+  + openTunnel(): boolean <<throws ConnectionException>>
+  + closeTunnel(): void
+}
+
+class CommunicationChannel {
+  + sendMessage(message: String): void
+  + receiveMessage(): String
+}
+
+class HeartbeatManager {
+  + startHeartbeat(): void
+  + stopHeartbeat(): void
+  + sendHeartbeat(): void
+}
+
+' ---------------------------
+' Bank Server Additional Classes
+' ---------------------------
+class Account {
+  - accountNumber: String
+  - balance: double
+  + debit(amount: double): boolean <<throws InsufficientFundsException>>
+  + credit(amount: double): void
+  + getBalance(): double
+}
+
+class TransactionLog {
+  + logTransaction(transaction: ATMTransaction): void
+}
+
+' ---------------------------
+' Exception Classes
+' ---------------------------
+exception InvalidCardException <<exception>> {
+}
+exception InvalidPINException <<exception>> {
+}
+exception InsufficientFundsException <<exception>> {
+}
+exception ConnectionException <<exception>> {
+}
+
+' ---------------------------
+' Relationships
+' ---------------------------
+ATMMachine "1" *-- "1" Card : uses
+ATMMachine --> BankServer : communicates with
+ATMMachine --> ATMTransaction : creates
+ATMMachine o-- ConnectionManager : manages
+
+ConnectionManager o-- SecureTunnel : owns
+ConnectionManager o-- CommunicationChannel : owns
+ConnectionManager o-- HeartbeatManager : owns
+
+BankServer --> Card : validates
+BankServer --> Account : manages
+BankServer --> TransactionLog : uses
+
+' Indicate which methods might throw exceptions
+ATMMachine --> InvalidCardException : <<throws>>
+ATMMachine --> InsufficientFundsException : <<throws>>
+BankServer --> InvalidPINException : <<throws>>
+BankServer --> InsufficientFundsException : <<throws>>
+ConnectionManager --> ConnectionException : <<throws>>
+
+' ---------------------------
+' Constraints & Notes
+' ---------------------------
+note right of ATMMachine
+  * Initial cash capacity is set at startup.
+  * Maximum withdrawal = min($200, cashAvailable).
+  * Input timers:
+    - 30 sec for card insertion, PIN entry, menu selection,
+      balance inquiry, and exit.
+    - 60 sec for withdrawal amount selection.
+end note
+
+note right of ConnectionManager
+  * Manages connectivity between ATM and Bank.
+  * Establishes a secure tunnel, opens a communication channel,
+    and sends periodic heartbeats.
+  * Tears down the connection after transactions complete.
+end note
+
+note right of BankServer
+  * Manages customer accounts and processes transactions.
+  * Validates PIN, returns balance, and logs transactions.
+end note
+
+@enduml
