@@ -1,0 +1,70 @@
+
+@startuml ATM_Test_Plan_Diagram
+
+' Define classes
+class ATMFacade {
+    +authenticateUser(pin: int): bool
+    +initiateTransaction(): void
+}
+
+class Card {
+    -number: string
+    -pin: int
+}
+
+class BankServer {
+    +verifyPin(): void
+    +debitAmount(): void
+}
+
+class CashDispenser {
+    +dispenseCash(amount: double): void
+}
+
+class ReceiptPrinter {
+    +printReceipt(): void
+}
+
+class ATMTransactionLogger {
+    +logTransaction(details: string): void
+}
+
+class ExceptionHandler {
+    +handleException(): void
+}
+
+' Test scenarios as notes
+note right of Card
+  Test: Authenticate with invalid PIN
+  - Expect error after 3 tries
+end note
+
+note top of BankServer
+  Test: Transaction with insufficient funds
+  - Expect denial, no cash dispensed
+end note
+
+note right of CashDispenser
+  Test: Withdrawal with sufficient funds
+  - Cash dispensed, receipt printed
+end note
+
+note right of ATMTransactionLogger
+  Test: Transaction logging failure
+  - Should log or raise exception
+end note
+
+note right of ReceiptPrinter
+  Test: Printer malfunction
+  - Cash still dispensed, log error
+end note
+
+' Relationships
+ATMFacade --> Card : uses
+ATMFacade --> BankServer : verifies
+ATMFacade --> CashDispenser : triggers
+ATMFacade --> ReceiptPrinter : prints
+ATMFacade --> ATMTransactionLogger : logs
+ATMFacade --> ExceptionHandler : handles
+
+@enduml
